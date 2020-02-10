@@ -1,0 +1,30 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: release
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10
+          registry-url: 'https://registry.npmjs.org'
+      - name: install dependencies
+        run: yarn install
+      - name: build
+        run: yarn build
+      - name: pre-publish
+        run: |
+          yarn global add auto-dist-tag@1
+          auto-dist-tag --write
+      - name: publish
+        run: yarn publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
